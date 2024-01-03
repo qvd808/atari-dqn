@@ -42,3 +42,12 @@ class Model(nn.Module):
             q_value = self.forward(state)
             action = torch.argmax(q_value)
             return action
+    
+    def process_buffer(self, buffer):
+        state = torch.Tensor( np.array([item.state for item in buffer]) ).to(self.device)
+        next_state = torch.Tensor( np.array([item.next_state for item in buffer]) ).to(self.device)
+        action = torch.Tensor( np.array([item.action for item in buffer]) ).to(self.device)
+        reward = torch.Tensor( np.array([item.reward for item in buffer]) ).to(self.device)
+        done = torch.Tensor( np.array([(1 if item.done else 0) for item in buffer]) ).to(self.device)
+
+        return state, next_state, action, reward, done

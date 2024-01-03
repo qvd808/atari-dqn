@@ -23,7 +23,7 @@ if __name__ == "__main__":
         output_size=env.action_space.n
     )
 
-    MIN_MEMORY = 10_000
+    MIN_MEMORY = 100
     
 
     for episode in range(n_training_episode):
@@ -31,6 +31,7 @@ if __name__ == "__main__":
             action = env.action_space.sample()
 
             new_obs, reward, terminate, done, info = env.step(action)
+            
             item = Buffer(
                 state=obs, 
                 next_state=new_obs,
@@ -38,12 +39,14 @@ if __name__ == "__main__":
                 reward = reward,
                 done=done
             )
+
             relay_buffer.push(item)
             if len(relay_buffer) > MIN_MEMORY:
-                state, next_state, action, reward, done = relay_buffer.sample(MIN_MEMORY)
-                        
-            obs = new_obs
+                buffer = relay_buffer.sample(MIN_MEMORY)
+                state_batch, next_state_batch, reward_batch, action_batch, done_batch = model.process_buffer(buffer)
 
+            ## Reset obs
+            obs = new_obs
             if terminate or done:
                 obs, info = env.reset()
                 break

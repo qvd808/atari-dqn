@@ -1,9 +1,10 @@
 import torch
-from torch.nn import nn
+import torch.nn as nn
 import numpy as np
 
-class Agent(nn.Module):
+class Model(nn.Module):
     def __init__(self, input_size, output_size) -> None:
+        super(Model, self).__init__()
 
         self.middle = 128
 

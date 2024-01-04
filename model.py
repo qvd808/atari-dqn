@@ -14,16 +14,16 @@ class Model(nn.Module):
         self.output_size = output_size
 
         self.conv = nn.Sequential(
-            nn.Conv2d(input_size, 16, kernel_size=(8, 8), stride=(4, 4)),
+            nn.Conv2d(input_size, 32, kernel_size=(8, 8), stride=(4, 4)),
             nn.ReLU(),
-            nn.Conv2d(16, 32, kernel_size=(4, 4), stride=(2, 2)),
+            nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),
-            nn.Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1)),
+            nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1)),
             nn.ReLU()
         )
      
         self.fc = nn.Sequential(
-            nn.Linear(6 * 6 * 32, self.middle),
+            nn.Linear(6 * 6 * 64, self.middle),
             nn.ReLU(),
             nn.Linear(self.middle, output_size)
         )

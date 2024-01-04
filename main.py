@@ -37,7 +37,8 @@ if __name__ == "__main__":
     max_expsilon = 1
     epsilon_decay = 0.005
 
-    MIN_MEMORY = 10_000
+    MIN_MEMORY = 100
+    # MIN_MEMORY = 10_000
     
     #Plot
     reward_list = []
@@ -68,19 +69,35 @@ if __name__ == "__main__":
             relay_buffer.push(item)
 
             if len(relay_buffer) > MIN_MEMORY:
-                if episode % 500 == 0:
-                    buffer = relay_buffer.sample(MIN_MEMORY)
-                    state_batch, next_state_batch, reward_batch, action_batch, done_batch = model.process_buffer(buffer)
-                    # import ipdb; ipdb.set_trace()
-                    q_value = model(state_batch).to(model.device)
-                    q_value_next_state = model(next_state_batch)
-                    expected_q_value = reward + gamma * q_value_next_state * (1 - done)
+                if episode % 3000 == 0:
 
-                    loss = (q_value - expected_q_value).pow(2).mean()
-                    # Optimize the model
-                    model.optimizer.zero_grad()
-                    loss.backward()
-                    model.optimizer.step()
+                    with torch.no_grad():
+                        buffer = relay_buffer.sample(min(50_000, len(relay_buffer)))
+                        state_batch, next_state_batch, reward_batch, action_batch, done_batch = model.process_buffer(buffer)
+                        # import ipdb; ipdb.set_trace()
+                        q_value = model(state_batch).to(model.device)
+                        q_value_next_state = model(next_state_batch)
+                        expected_q_value = reward + gamma * q_value_next_state * (1 - done)
+
+                        loss = (q_value - expected_q_value).pow(2).mean()
+                        loss.requires_grad = True
+                        # Optimize the model
+                        model.optimizer.zero_grad()
+                        loss.backward()
+                        model.optimizer.step()
+
+                    # buffer = relay_buffer.sample(MIN_MEMORY)
+                    # state_batch, next_state_batch, reward_batch, action_batch, done_batch = model.process_buffer(buffer)
+                    # # import ipdb; ipdb.set_trace()
+                    # q_value = model(state_batch).to(model.device)
+                    # q_value_next_state = model(next_state_batch)
+                    # expected_q_value = reward + gamma * q_value_next_state * (1 - done)
+
+                    # loss = (q_value - expected_q_value).pow(2).mean()
+                    # # Optimize the model
+                    # model.optimizer.zero_grad()
+                    # loss.backward()
+                    # model.optimizer.step()
 
             ## Reset obs
             obs = new_obs
@@ -108,8 +125,8 @@ if __name__ == "__main__":
                 from IPython import display
                 display.clear_output(wait=True)
                 display.display(fig)
-
-            model.save_model(f"model_step_{episode}.pt")
+            if episode % 10_000 == 0:
+                model.save_model(f"model_step_{episode}.pt")
 
     plt.tight_layout()
     plt.show()

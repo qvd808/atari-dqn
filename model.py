@@ -14,19 +14,21 @@ class Model(nn.Module):
         self.output_size = output_size
 
         self.conv = nn.Sequential(
-            nn.Conv2d(input_size, 32, kernel_size=8, stride=4),
+            nn.Conv2d(input_size, 32, kernel_size=(8, 8), stride=(4, 4)),
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1)),
             nn.ReLU()
         )
-
+     
         self.fc = nn.Sequential(
-            nn.Linear(7 * 7 * 64, self.middle),
+            nn.Linear(6 * 6 * 64, self.middle),
             nn.ReLU(),
             nn.Linear(self.middle, output_size)
         )
+
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
     
     def forward(self, x):
         x = self.conv(x)
@@ -35,12 +37,12 @@ class Model(nn.Module):
         return x
     
     def choose_action(self, state, epsilon):
-        if np.random.uniform() < epsilon:
-            return np.random.randint(0, self.output_size + 1)
+        if np.random.uniform(0, 1) < epsilon:
+            return np.random.randint(0, self.output_size)
         else:
-            state = torch.from_numpy(state).float().unsqueeze().to(self.device)
+            state = torch.from_numpy(np.array(state)).float().unsqueeze(dim=0).to(self.device)
             q_value = self.forward(state)
-            action = torch.argmax(q_value)
+            action = torch.argmax(q_value).item()
             return action
     
     def process_buffer(self, buffer):
@@ -51,3 +53,6 @@ class Model(nn.Module):
         done = torch.Tensor( np.array([(1 if item.done else 0) for item in buffer]) ).to(self.device)
 
         return state, next_state, action, reward, done
+
+    def save_model(self, path):
+        torch.save(self.state_dict(), path)

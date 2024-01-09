@@ -22,7 +22,7 @@ if __name__ == "__main__":
         relay_buffer=relay_buffer,
         device=device
     )
-    agent.policy_net.load_state_dict(torch.load("model.pth"))
+    agent.policy_net.load_state_dict(torch.load("./model/model.pth"))
 
     
     epsilon_max = 1.0

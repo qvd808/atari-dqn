@@ -11,7 +11,7 @@ class Agent():
             action_space,
             relay_buffer,
             device,
-            learning_rate=0.0001,
+            learning_rate=5e-5,
             gamma=0.99,
             batch_size=32,
         ) -> None:
@@ -58,7 +58,7 @@ class Agent():
         current_max_action = self.policy_net(obs_t).argmax(dim = 1)
         current_max_q_val = self.policy_net(obs_t).gather(1, current_max_action.unsqueeze(1)).squeeze(1)
 
-        loss = F.mse_loss(current_max_q_val, target_q_max)
+        loss = F.smooth_l1_loss(current_max_q_val, target_q_max)
         
         self.optimizer.zero_grad()
         loss.backward()

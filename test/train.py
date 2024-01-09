@@ -41,7 +41,7 @@ if __name__ == "__main__":
         
     epsilon_max = 1.0
     epsilon_min = 0.1
-    decay_rate = 0.0001
+    decay_rate = 0.00005
     rewards = []
     reward_per_run = 0
 

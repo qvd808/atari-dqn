@@ -8,7 +8,7 @@ import itertools
 import random
 
 if __name__ == "__main__":
-    env = gym.make("BreakoutNoFrameskip-v4", render_mode="rgb_array")
+    env = gym.make("BreakoutNoFrameskip-v4", render_mode="human")
     env = GrayScaleObservation(env)
     env = ResizeObservation(env, (84, 84))
     env = FrameStack(env, 4)
@@ -51,12 +51,6 @@ if __name__ == "__main__":
             reward_per_run = 0
             continue
         
-        if reward_per_run > 1:
-            env = gym.make("BreakoutNoFrameskip-v4", render_mode="human")
-            env = GrayScaleObservation(env)
-            env = ResizeObservation(env, (84, 84))
-            env = FrameStack(env, 4)
-            obs, info = env.reset()
-
+        
         if i % 1_000 == 0:
             print(f"Episode: {i}, Reward: {np.mean(rewards[-101:-1])}")
